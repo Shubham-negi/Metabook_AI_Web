@@ -2,5 +2,4 @@ node_modules/
 .DS_Store
 *.log
 *.tgz
-Metabook_AI_Web/
 dist/Build/*.gz
