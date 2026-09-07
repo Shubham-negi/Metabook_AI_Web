@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Metabook Unity WebGL</title>
+    <meta
+      name="description"
+      content="A hosted Unity WebGL player shell for the Metabook AI web build."
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="player-panel" aria-label="Unity WebGL player">
+        <div class="stage-header">
+          <div>
+            <p class="eyebrow">Unity WebGL</p>
+            <h1>Metabook AI</h1>
+          </div>
+          <div class="actions">
+            <button id="reload-button" type="button" title="Reload build" aria-label="Reload build">
+              <span aria-hidden="true">↻</span>
+            </button>
+            <button id="fullscreen-button" type="button" title="Fullscreen" aria-label="Fullscreen">
+              <span aria-hidden="true">⛶</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="unity-frame" id="unity-frame">
+          <canvas id="unity-canvas" tabindex="-1"></canvas>
+          <div class="overlay" id="overlay">
+            <div class="loader-mark" aria-hidden="true"></div>
+            <h2 id="overlay-title">Looking for your Unity build</h2>
+            <p id="overlay-message">
+              Add your WebGL export files to this site and the player will start here.
+            </p>
+            <div class="progress" aria-hidden="true">
+              <span id="progress-bar"></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="setup-panel" aria-label="Build setup">
+        <p class="eyebrow">Build folder</p>
+        <h2>Drop your Unity WebGL export into the site.</h2>
+        <ol>
+          <li>Export from Unity using the WebGL platform.</li>
+          <li>Copy Unity's <code>Build</code> folder into <code>dist/Build</code>.</li>
+          <li>Copy Unity's <code>TemplateData</code> folder into <code>dist/TemplateData</code>.</li>
+          <li>Update <code>dist/unity-config.json</code> if your loader file has a different name.</li>
+        </ol>
+        <div class="config-card">
+          <span>Status</span>
+          <strong id="status-text">Checking files...</strong>
+        </div>
+      </aside>
+    </main>
+
+    <script src="./player.js" type="module"></script>
+  </body>
+</html>
