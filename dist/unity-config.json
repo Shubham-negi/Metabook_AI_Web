@@ -1,6 +1,6 @@
 {
   "dataUrl": "./Build/WebGL.data.gz",
-  "frameworkUrl": "./Build/WebGL.framework.js.gz",
+  "frameworkUrl": "./Build/WebGL.framework.js",
   "codeUrl": "./Build/WebGL.wasm.gz",
   "loaderUrl": "./Build/WebGL.loader.js",
   "streamingAssetsUrl": "StreamingAssets",

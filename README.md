@@ -13,7 +13,7 @@ The current build files are configured as:
 
 - `dist/Build/WebGL.loader.js`
 - `dist/Build/WebGL.data.gz`
-- `dist/Build/WebGL.framework.js.gz`
+- `dist/Build/WebGL.framework.js`
 - `dist/Build/WebGL.wasm.gz`
 
 After those files are present, the website will load the Unity player automatically.
