@@ -17,3 +17,7 @@ The current build files are configured as:
 - `dist/Build/WebGL.wasm.gz`
 
 After those files are present, the website will load the Unity player automatically.
+
+## Vercel deployment
+
+This repo includes a root-level `vercel.json` that points Vercel at `dist` and adds the required Unity WebGL headers for precompressed `.gz` build files. Without these headers, the browser can download the files but Unity cannot parse them.
