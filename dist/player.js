@@ -37,6 +37,34 @@ const checkFile = async (url) => {
   }
 };
 
+const checkCompressedAsset = async (url) => {
+  try {
+    const response = await fetch(url, {
+      cache: "no-store",
+      headers: { Range: "bytes=0-255" },
+    });
+
+    if (!response.ok) {
+      throw new Error(`${url} was not found.`);
+    }
+
+    const sample = await response.text();
+    if (sample.startsWith("version https://git-lfs.github.com/spec")) {
+      throw new Error(
+        "Vercel is serving Git LFS pointer files instead of the Unity build. Enable Git LFS in the Vercel project settings, then redeploy."
+      );
+    }
+  } catch (error) {
+    if (error.message?.includes("Git LFS pointer")) {
+      throw error;
+    }
+
+    throw new Error(
+      `Unable to read ${url}. If this is deployed on Vercel, enable Git LFS in the project settings and redeploy.`
+    );
+  }
+};
+
 const injectScript = (src) =>
   new Promise((resolve, reject) => {
     const existing = document.querySelector(`script[data-unity-loader="${src}"]`);
@@ -69,6 +97,7 @@ const startUnity = async () => {
       checkFile(config.frameworkUrl),
       checkFile(config.codeUrl),
     ]);
+    await checkCompressedAsset(config.frameworkUrl);
     await injectScript(config.loaderUrl);
 
     if (typeof window.createUnityInstance !== "function") {

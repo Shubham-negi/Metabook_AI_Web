@@ -21,3 +21,7 @@ After those files are present, the website will load the Unity player automatica
 ## Vercel deployment
 
 This repo includes a root-level `vercel.json` that points Vercel at `dist` and adds the required Unity WebGL headers for precompressed `.gz` build files. Without these headers, the browser can download the files but Unity cannot parse them.
+
+The Unity `.gz` assets are stored with Git LFS. In Vercel, open the project settings, go to **Git**, enable **Git Large File Storage (LFS)**, then redeploy. If LFS is off, Vercel deploys tiny pointer files instead of the real Unity assets, which causes `ERR_CONTENT_DECODING_FAILED` in the browser.
+
+The deployment runs `node scripts/verify-unity-build.mjs` before publishing so broken LFS checkouts fail instead of shipping a loading screen.
