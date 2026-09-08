@@ -3,6 +3,11 @@
   "framework": null,
   "buildCommand": "node scripts/verify-unity-build.mjs",
   "outputDirectory": "dist",
+  "functions": {
+    "api/cylo.js": {
+      "maxDuration": 30
+    }
+  },
   "headers": [
     {
       "source": "/Build/(.*)\\.framework\\.js\\.gz",
