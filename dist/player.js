@@ -97,7 +97,7 @@ const startUnity = async () => {
       checkFile(config.frameworkUrl),
       checkFile(config.codeUrl),
     ]);
-    await checkCompressedAsset(config.frameworkUrl);
+    //await checkCompressedAsset(config.frameworkUrl);
     await injectScript(config.loaderUrl);
 
     if (typeof window.createUnityInstance !== "function") {
