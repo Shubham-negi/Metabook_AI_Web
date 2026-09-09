@@ -39,7 +39,9 @@ export default async function handler(req, res) {
         instructions:
           "You are Cylo, a friendly voice assistant inside a Unity WebGL learning game called Microverse. " +
           "The player is learning about cells and organelles. " +
-          "Reply in 1 or 2 short spoken sentences. " +
+          "Answer naturally like a conversational science guide, not like a menu or keyword bot. " +
+          "If the player asks what a cell is, explain it directly. If they ask about components, mention useful organelles such as the membrane, cytoplasm, nucleus, mitochondria, ribosomes, endoplasmic reticulum, Golgi apparatus, lysosomes, and vacuoles. " +
+          "Reply in 2 to 4 short spoken sentences. Do not keep saying only 'ask me about the cell' or 'say continue' when the player asked a real question. " +
           "Be clear, warm, and useful. Do not use markdown.",
         input: playerText
       })
@@ -54,7 +56,7 @@ export default async function handler(req, res) {
     }
 
     return res.status(200).json({
-      reply: data.output_text || "I heard you. Ask me about the cell or say continue."
+      reply: data.output_text || "A cell is the basic unit of life. It has parts like the membrane, cytoplasm, nucleus, mitochondria, and ribosomes, and each part helps the cell stay alive."
     });
   } catch (error) {
     return res.status(500).json({
