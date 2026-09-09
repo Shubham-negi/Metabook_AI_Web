@@ -20,6 +20,25 @@ function buildInput(playerText, history) {
   return messages;
 }
 
+function extractResponseText(data) {
+  if (typeof data?.output_text === "string" && data.output_text.trim()) {
+    return data.output_text.trim();
+  }
+
+  const textParts = Array.isArray(data?.output)
+    ? data.output.flatMap(item =>
+        Array.isArray(item?.content)
+          ? item.content
+              .filter(part => part?.type === "output_text" && typeof part.text === "string")
+              .map(part => part.text.trim())
+              .filter(Boolean)
+          : []
+      )
+    : [];
+
+  return textParts.join("\n").trim();
+}
+
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
@@ -64,6 +83,7 @@ export default async function handler(req, res) {
           "You are Cylo, a friendly voice assistant inside a Unity WebGL learning game called Microverse. " +
           "The player is learning about cells and organelles. " +
           "Answer naturally like a conversational science guide, not like a menu or keyword bot. " +
+          "Answer the player's newest message directly. Never restart the cell introduction unless the player asks you to. " +
           "Remember the recent conversation. If the player asks a follow-up like 'why', 'what about that', or 'tell me more', use the previous messages to continue naturally. " +
           "If the player says hi, hello, or another greeting, greet them briefly and ask what they want to explore inside the cell. " +
           "If the player asks a broad or casual question, answer it directly first, then gently connect it to the Microverse cell journey. " +
@@ -82,9 +102,15 @@ export default async function handler(req, res) {
       });
     }
 
-    return res.status(200).json({
-      reply: data.output_text || "A cell is the basic unit of life. It has parts like the membrane, cytoplasm, nucleus, mitochondria, and ribosomes, and each part helps the cell stay alive."
-    });
+    const reply = extractResponseText(data);
+
+    if (!reply) {
+      return res.status(502).json({
+        error: "OpenAI returned a response without spoken text"
+      });
+    }
+
+    return res.status(200).json({ reply });
   } catch (error) {
     return res.status(500).json({
       error: "Cylo server error"
