@@ -1,3 +1,25 @@
+function buildInput(playerText, history) {
+  const messages = Array.isArray(history)
+    ? history
+        .filter(item => item && (item.role === "user" || item.role === "assistant"))
+        .map(item => ({
+          role: item.role,
+          content: String(item.content || "").trim()
+        }))
+        .filter(item => item.content.length > 0)
+        .slice(-12)
+    : [];
+
+  if (messages.length === 0 || messages[messages.length - 1].role !== "user") {
+    messages.push({
+      role: "user",
+      content: playerText
+    });
+  }
+
+  return messages;
+}
+
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
@@ -28,6 +50,8 @@ export default async function handler(req, res) {
   }
 
   try {
+    const input = buildInput(playerText, req.body?.history);
+
     const openaiResponse = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
       headers: {
@@ -40,10 +64,13 @@ export default async function handler(req, res) {
           "You are Cylo, a friendly voice assistant inside a Unity WebGL learning game called Microverse. " +
           "The player is learning about cells and organelles. " +
           "Answer naturally like a conversational science guide, not like a menu or keyword bot. " +
+          "Remember the recent conversation. If the player asks a follow-up like 'why', 'what about that', or 'tell me more', use the previous messages to continue naturally. " +
+          "If the player says hi, hello, or another greeting, greet them briefly and ask what they want to explore inside the cell. " +
+          "If the player asks a broad or casual question, answer it directly first, then gently connect it to the Microverse cell journey. " +
           "If the player asks what a cell is, explain it directly. If they ask about components, mention useful organelles such as the membrane, cytoplasm, nucleus, mitochondria, ribosomes, endoplasmic reticulum, Golgi apparatus, lysosomes, and vacuoles. " +
           "Reply in 2 to 4 short spoken sentences. Do not keep saying only 'ask me about the cell' or 'say continue' when the player asked a real question. " +
           "Be clear, warm, and useful. Do not use markdown.",
-        input: playerText
+        input
       })
     });
 
