@@ -6,6 +6,9 @@
   "functions": {
     "api/cylo.js": {
       "maxDuration": 30
+    },
+    "api/cylo-voice.js": {
+      "maxDuration": 30
     }
   },
   "headers": [
