@@ -5,7 +5,9 @@
 //           the X-Sample-Rate header (OpenAI's "pcm" format is 24 kHz).
 // Optional Vercel environment variables: OPENAI_TTS_MODEL, OPENAI_TTS_VOICE.
 
-const MAX_TEXT_LENGTH = 1500;
+// About a minute of speech: 24 kHz 16-bit PCM stays under Vercel's 4.5 MB
+// response limit. Mico's replies are 2-4 short sentences.
+const MAX_TEXT_LENGTH = 900;
 const SAMPLE_RATE = 24000;
 
 export default async function handler(req, res) {
@@ -72,13 +74,31 @@ export default async function handler(req, res) {
       });
     }
 
-    const audio = Buffer.from(await openaiResponse.arrayBuffer());
-
+    res.statusCode = 200;
     res.setHeader("Content-Type", "application/octet-stream");
     res.setHeader("X-Sample-Rate", String(SAMPLE_RATE));
     res.setHeader("Cache-Control", "no-store");
-    return res.status(200).send(audio);
+
+    // Forward the audio while OpenAI is still producing it, so the phone's
+    // download overlaps the synthesis instead of following it.
+    const reader = openaiResponse.body.getReader();
+
+    for (;;) {
+      const { done, value } = await reader.read();
+
+      if (done) {
+        break;
+      }
+
+      res.write(Buffer.from(value));
+    }
+
+    return res.end();
   } catch (error) {
+    if (res.headersSent) {
+      return res.end();
+    }
+
     return res.status(500).json({
       error: "Mico voice server error"
     });
