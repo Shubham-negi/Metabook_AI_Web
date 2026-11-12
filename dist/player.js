@@ -104,6 +104,12 @@ const startUnity = async () => {
       throw new Error("Unity loader is present, but createUnityInstance was not found.");
     }
 
+    // Phones report a devicePixelRatio of 2-3.5, so Unity would render 4-12x a laptop's pixels and lag
+    // whenever the camera moves. Cap it there; laptops and desktops keep their full sharpness.
+    const isPhone = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
+      || (navigator.maxTouchPoints > 1 && /Macintosh/.test(navigator.userAgent));
+    if (isPhone) config.devicePixelRatio = Math.min(window.devicePixelRatio || 1, 1.5);
+
     setStatus("Starting Unity", "Loading the WebGL runtime and game assets.", "Loading", 0.12);
     unityInstance = await window.createUnityInstance(canvas, config, (progress) => {
       setStatus("Starting Unity", "Loading the WebGL runtime and game assets.", "Loading", progress);
