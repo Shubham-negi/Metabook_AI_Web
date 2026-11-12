@@ -1,8 +1,8 @@
 {
-  "dataUrl": "./Build/WebGL.data.gz",
-  "frameworkUrl": "./Build/WebGL.framework.js.gz",
-  "codeUrl": "./Build/WebGL.wasm.gz",
-  "loaderUrl": "./Build/WebGL.loader.js",
+  "dataUrl": "./Build/Ai Sound.data.unityweb",
+  "frameworkUrl": "./Build/Ai Sound.framework.js.unityweb",
+  "codeUrl": "./Build/Ai Sound.wasm.unityweb",
+  "loaderUrl": "./Build/Ai Sound.loader.js",
   "streamingAssetsUrl": "StreamingAssets",
   "companyName": "Metabook",
   "productName": "Metabook AI",
