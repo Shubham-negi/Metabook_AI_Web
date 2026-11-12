@@ -108,7 +108,7 @@ const startUnity = async () => {
     // whenever the camera moves. Cap it at 2.5 (sharp on a phone); laptops and desktops keep theirs.
     const isPhone = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
       || (navigator.maxTouchPoints > 1 && /Macintosh/.test(navigator.userAgent));
-    if (isPhone) config.devicePixelRatio = Math.min(window.devicePixelRatio || 1, 2.5);
+    if (isPhone) config.devicePixelRatio = Math.min(window.devicePixelRatio || 1, 3);
 
     setStatus("Starting Unity", "Loading the WebGL runtime and game assets.", "Loading", 0.12);
     unityInstance = await window.createUnityInstance(canvas, config, (progress) => {
