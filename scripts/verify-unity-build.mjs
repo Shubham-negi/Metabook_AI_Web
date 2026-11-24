@@ -2,10 +2,12 @@ import { open, readFile, stat } from "node:fs/promises";
 import path from "node:path";
 
 const config = JSON.parse(await readFile("dist/unity-config.json", "utf8"));
-// Check the same filenames the player loads, including compression extensions.
+// Check the same filenames the player loads, including compression extensions. A data file split into
+// parts (scripts/split-unity-data.ps1) is listed in dataParts instead of dataUrl.
+const dataFiles = Array.isArray(config.dataParts) && config.dataParts.length ? config.dataParts : [config.dataUrl];
 const unityFiles = [
   config.loaderUrl,
-  config.dataUrl,
+  ...dataFiles,
   config.frameworkUrl,
   config.codeUrl,
 ].map((file) => path.join("dist", file.replace(/^\.\//, "")));

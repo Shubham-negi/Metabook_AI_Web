@@ -1,2 +1,5 @@
-dist/Build/*.gz filter=lfs diff=lfs merge=lfs -text
-dist/Build/*.unityweb filter=lfs diff=lfs merge=lfs -text
+# The Unity build is stored as normal git files, not Git LFS: the repo's LFS budget ran out, which blocked pushes and
+# Vercel's downloads. GitHub refuses normal files over 100 MB, so the big data file is split into parts
+# (scripts/split-unity-data.ps1) and player.js joins them again in the browser.
+dist/Build/*.unityweb binary
+dist/Build/*.part* binary

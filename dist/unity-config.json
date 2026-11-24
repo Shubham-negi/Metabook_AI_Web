@@ -1,8 +1,12 @@
 {
-  "dataUrl": "./Build/Ai Sound.data.unityweb",
-  "frameworkUrl": "./Build/Ai Sound.framework.js.unityweb",
-  "codeUrl": "./Build/Ai Sound.wasm.unityweb",
-  "loaderUrl": "./Build/Ai Sound.loader.js",
+  "dataParts": [
+    "./Build/WebGL.data.unityweb.part1",
+    "./Build/WebGL.data.unityweb.part2",
+    "./Build/WebGL.data.unityweb.part3"
+  ],
+  "frameworkUrl": "./Build/WebGL.framework.js.unityweb",
+  "codeUrl": "./Build/WebGL.wasm.unityweb",
+  "loaderUrl": "./Build/WebGL.loader.js",
   "streamingAssetsUrl": "StreamingAssets",
   "companyName": "Metabook",
   "productName": "Metabook AI",

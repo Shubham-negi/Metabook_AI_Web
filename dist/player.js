@@ -81,6 +81,40 @@ const injectScript = (src) =>
     document.body.appendChild(script);
   });
 
+// GitHub refuses files over 100 MB without Git LFS, so a big Unity data file is stored as parts
+// (scripts/split-unity-data.ps1). Download them side by side and join them, in order, into one blob.
+const fetchDataParts = async (urls, onProgress) => {
+  const loaded = urls.map(() => 0);
+  const totals = urls.map(() => 0);
+  const report = () => {
+    const total = totals.reduce((a, b) => a + b, 0);
+    if (total > 0) onProgress(Math.min(1, loaded.reduce((a, b) => a + b, 0) / total));
+  };
+  const blobs = await Promise.all(
+    urls.map(async (url, i) => {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`${url} was not found.`);
+      }
+      totals[i] = Number(response.headers.get("content-length")) || 0;
+      if (!response.body) {
+        return response.blob();
+      }
+      const reader = response.body.getReader();
+      const chunks = [];
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        chunks.push(value);
+        loaded[i] += value.length;
+        report();
+      }
+      return new Blob(chunks);
+    })
+  );
+  return new Blob(blobs, { type: "application/octet-stream" });
+};
+
 const startUnity = async () => {
   setStatus("Looking for your Unity build", "Checking the configured WebGL files.", "Checking", 0.05);
 
@@ -91,9 +125,10 @@ const startUnity = async () => {
     }
 
     const config = await loadConfig();
+    const dataParts = Array.isArray(config.dataParts) && config.dataParts.length ? config.dataParts : null;
     await Promise.all([
       checkFile(config.loaderUrl),
-      checkFile(config.dataUrl),
+      ...(dataParts ?? [config.dataUrl]).map(checkFile),
       checkFile(config.frameworkUrl),
       checkFile(config.codeUrl),
     ]);
@@ -110,10 +145,25 @@ const startUnity = async () => {
       || (navigator.maxTouchPoints > 1 && /Macintosh/.test(navigator.userAgent));
     if (isPhone) config.devicePixelRatio = Math.min(window.devicePixelRatio || 1, 2.5);
 
-    setStatus("Starting Unity", "Loading the WebGL runtime and game assets.", "Loading", 0.12);
+    // With parts: download and join them first (most of the wait), then Unity loads the rest.
+    let start = 0;
+    if (dataParts) {
+      setStatus("Starting Unity", "Downloading the game assets.", "Loading", 0.12);
+      const data = await fetchDataParts(dataParts, (p) =>
+        setStatus("Starting Unity", "Downloading the game assets.", "Loading", 0.12 + 0.7 * p)
+      );
+      config.dataUrl = URL.createObjectURL(data);
+      // Unity would otherwise store the joined blob in IndexedDB under its one-off blob: address on every visit.
+      // The browser's HTTP cache already keeps the part files.
+      config.cacheControl = () => "no-store";
+      start = 0.82;
+    }
+
+    setStatus("Starting Unity", "Loading the WebGL runtime and game assets.", "Loading", Math.max(start, 0.12));
     unityInstance = await window.createUnityInstance(canvas, config, (progress) => {
-      setStatus("Starting Unity", "Loading the WebGL runtime and game assets.", "Loading", progress);
+      setStatus("Starting Unity", "Loading the WebGL runtime and game assets.", "Loading", start + (1 - start) * progress);
     });
+    if (dataParts) URL.revokeObjectURL(config.dataUrl);
     hideOverlay();
   } catch (error) {
     setStatus(
