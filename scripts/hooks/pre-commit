@@ -1,24 +1,9 @@
 #!/bin/sh
-# Keeps every commit pushable to GitHub, which refuses any file of 100 MB or more (the "use Git LFS" error).
-#   - A commit that adds a fresh Unity data file in dist/Build splits it first (scripts/split-unity-data.ps1)
-#     and commits the parts and the updated dist/unity-config.json instead, so a new build can be copied in
-#     and committed as it is.
-#   - Any other staged file of 100 MB or more stops the commit.
+# Stops a commit that GitHub would refuse on push: any staged file of 100 MB or more that isn't stored with
+# Git LFS. Files tracked by LFS (see .gitattributes) are staged as small pointers, so they pass.
 #
 # Install once per clone, from the repo folder:  cp scripts/hooks/pre-commit .git/hooks/pre-commit
-
-root=$(git rev-parse --show-toplevel) || exit 1
-cd "$root" || exit 1
-
-fresh=$(git -c core.quotepath=off diff --cached --name-only --diff-filter=AM -- dist/Build/ |
-  grep -E '\.data' | grep -vE '\.part[0-9]+$')
-if [ -n "$fresh" ]; then
-  echo "pre-commit: splitting the new Unity data file ($fresh) into parts under GitHub's 100 MB limit."
-  if command -v powershell.exe >/dev/null 2>&1; then ps=powershell.exe; else ps=pwsh; fi
-  "$ps" -NoProfile -ExecutionPolicy Bypass -File scripts/split-unity-data.ps1 ||
-    { echo "pre-commit: splitting failed, so nothing was committed." >&2; exit 1; }
-  git add -A -- dist/Build dist/unity-config.json || exit 1
-fi
+# Keep Git LFS's own hooks (git lfs install) next to it: its pre-push hook uploads the LFS files.
 
 limit=104857600
 big=$(git -c core.quotepath=off diff --cached --name-only --diff-filter=AM | while IFS= read -r f; do
@@ -26,9 +11,9 @@ big=$(git -c core.quotepath=off diff --cached --name-only --diff-filter=AM | whi
   [ "$size" -ge "$limit" ] && echo "  $f ($((size / 1048576)) MB)"
 done)
 if [ -n "$big" ]; then
-  echo "pre-commit: GitHub refuses files of 100 MB or more, so this commit would never push:" >&2
+  echo "pre-commit: GitHub refuses normal files of 100 MB or more, and these aren't stored with Git LFS:" >&2
   echo "$big" >&2
-  echo "Make these files smaller or leave them out of the commit." >&2
+  echo "Track them with Git LFS in .gitattributes (git lfs track), then git add them again." >&2
   exit 1
 fi
 exit 0

@@ -1,14 +1,10 @@
 {
-    "streamingAssetsUrl":  "StreamingAssets",
-    "companyName":  "Metabook",
-    "productName":  "Metabook AI",
-    "productVersion":  "1.0",
-    "dataParts":  [
-                      "./Build/WebGL.data.unityweb.part1",
-                      "./Build/WebGL.data.unityweb.part2",
-                      "./Build/WebGL.data.unityweb.part3"
-                  ],
-    "loaderUrl":  "./Build/WebGL.loader.js",
-    "frameworkUrl":  "./Build/WebGL.framework.js.unityweb",
-    "codeUrl":  "./Build/WebGL.wasm.unityweb"
+  "dataUrl": "./Build/WebGL.data.unityweb",
+  "frameworkUrl": "./Build/WebGL.framework.js.unityweb",
+  "codeUrl": "./Build/WebGL.wasm.unityweb",
+  "loaderUrl": "./Build/WebGL.loader.js",
+  "streamingAssetsUrl": "StreamingAssets",
+  "companyName": "Metabook",
+  "productName": "Metabook AI",
+  "productVersion": "1.0"
 }
