@@ -3,3 +3,5 @@
 # (scripts/split-unity-data.ps1) and player.js joins them again in the browser.
 dist/Build/*.unityweb binary
 dist/Build/*.part* binary
+# Shell hooks break with CRLF line endings, so keep them LF on Windows checkouts too.
+scripts/hooks/* text eol=lf
